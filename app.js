@@ -1,5 +1,5 @@
 import express from "express";
-import { RekognitionClient, CreateFaceLivenessSessionCommand } from "@aws-sdk/client-rekognition";
+import { RekognitionClient, CreateFaceLivenessSessionCommand,GetFaceLivenessSessionResultsCommand  } from "@aws-sdk/client-rekognition";
 //https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/client/rekognition/command/CreateFaceLivenessSessionCommand/
 const app = express();
 
@@ -14,7 +14,7 @@ const credentials = {
 
 const client = new RekognitionClient(credentials);
 
-// Define a route to handle POST requests
+// Define a route to handle POST requests to fetch session Id
 app.post('/createFaceLivenessSession', async (req, res) => {
   try {
     // Input parameters for CreateFaceLivenessSessionCommand
@@ -38,6 +38,27 @@ app.post('/createFaceLivenessSession', async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+// Define a route to handle POST requests
+app.post('/getSessionResults', async (req, res) => {
+    try {
+    
+      const input = { // GetFaceLivenessSessionResultsRequest
+        SessionId: req.SessionId, // required
+      };
+  
+      // Create and send the command
+      const command = new GetFaceLivenessSessionResultsCommand(input);
+      const response = await client.send(command);
+  
+      // Send the response
+      res.json({  response});
+    } catch (error) {
+      // If there's an error, send an error response
+      console.error("Error:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  });
 
 // Start the server
 const PORT = 3000;
